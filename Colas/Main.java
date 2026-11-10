@@ -11,7 +11,6 @@ public class Main {
 
     /**
      * Punto de entrada del programa.
-     * @param args argumentos (no se usan)
      */
     public static void main(String[] args) {
         Locale.setDefault(Locale.US); // decimales con punto, tanto al leer como al mostrar

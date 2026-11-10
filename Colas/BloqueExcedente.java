@@ -1,7 +1,7 @@
 package Colas;
 
 /**
- * Representa un bloque de energía excedente inyectado a un precio concreto.
+ * Representa un bloque de energía excedente inyectado a un precio concreto
  */
 public class BloqueExcedente {
     private double kwh;
@@ -9,7 +9,7 @@ public class BloqueExcedente {
     private double saldoEuros;
 
     /**
-     * Crea un bloque a partir de los kWh y el precio del momento.
+     * Crea un bloque a partir de los kWh y el precio del momento
      * @param kwh energía inyectada (kWh)
      * @param precioKwh precio por kWh (€)
      */
@@ -29,7 +29,7 @@ public class BloqueExcedente {
     public double getSaldoEuros() { return saldoEuros; }
 
     /**
-     * Descuenta un importe del bloque y actualiza los kWh restantes.
+     * Descuenta un importe del bloque y actualiza los kWh restantes
      * @param importe euros a descontar (no mayor que el saldo del bloque)
      */
     public void descontar(double importe) {

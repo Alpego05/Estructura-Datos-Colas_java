@@ -1,7 +1,7 @@
 package Colas;
 
 /**
- * Excepción general para errores en las operaciones de la batería virtual.
+ * Excepción general para errores en las operaciones de la batería virtual
  */
 public class BateriaExcepcion extends Exception {
     /**

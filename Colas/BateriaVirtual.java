@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * Batería virtual fotovoltaica que gestiona los excedentes con política FIFO.
+ * Batería virtual fotovoltaica que gestiona los excedentes
  */
 public class BateriaVirtual {
     private static final double EPSILON = 1e-9;
@@ -15,7 +15,7 @@ public class BateriaVirtual {
     private double ahorroTotal = 0;
 
     /**
-     * Inyecta un nuevo bloque de excedente al final de la cola.
+     * Inyecta un nuevo bloque de excedente al final de la cola
      * @param kwh energía inyectada (kWh), mayor que 0
      * @param precio precio por kWh (€), mayor que 0
      * @throws BateriaExcepcion si algún valor no es positivo
@@ -29,7 +29,7 @@ public class BateriaVirtual {
 
     /**
      * Consume energía de la batería liquidando primero los bloques más antiguos (FIFO).
-     * El importe consumido es kWh * precio.
+     * El importe consumido es kWh * precio
      * @param kwh energía a consumir (kWh), mayor que 0
      * @param precio precio actual por kWh (€), mayor que 0
      * @return importe total consumido en euros
