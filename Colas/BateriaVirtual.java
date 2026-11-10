@@ -1,61 +1,88 @@
 package Colas;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Queue;
 
-
+/**
+ * Batería virtual fotovoltaica que gestiona los excedentes con política FIFO.
+ */
 public class BateriaVirtual {
-	
-	//Hacemos la cola donde se guardan los bloques en el orden que llegan
-	LinkedList<BloqueExcedente> colaExcedentes = new LinkedList<>();
-    double ahorroTotal = 0;
+    private static final double EPSILON = 1e-9;
 
-    //Primer caso: Inyectar, añade un nuevo bloque al final de la cola
-    public void inyectar (double kwh, double precio ) {
-		colaExcedentes.add(new BloqueExcedente(kwh, precio));
+    private final Queue<BloqueExcedente> colaExcedentes = new LinkedList<>();
+    private double ahorroTotal = 0;
+
+    /**
+     * Inyecta un nuevo bloque de excedente al final de la cola.
+     * @param kwh energía inyectada (kWh), mayor que 0
+     * @param precio precio por kWh (€), mayor que 0
+     * @throws BateriaExcepcion si algún valor no es positivo
+     */
+    public void inyectar(double kwh, double precio) throws BateriaExcepcion {
+        if (kwh <= 0 || precio <= 0) {
+            throw new BateriaExcepcion("Los kWh y el precio deben ser mayores que 0.");
+        }
+        colaExcedentes.add(new BloqueExcedente(kwh, precio));
     }
-    
-    //Segundo caso: Consumir, gasta el dinero de los bloques mas antiguos primero
-    public void consumir(double importe) throws Exception {
-    	//Calculamos cuanto dinero hay en total en la bateria
-    	double saldoTotal = 0;
-    	
-    	for (BloqueExcedente b : colaExcedentes) {
-    	    saldoTotal += b.saldoEuros;
-    	}
-    	
-    	if (importe > saldoTotal) {
-    		throw new Exception ( "No hay suficiente saldo en la bateria");
-    	}
-    	
-    	//Gastamos aplicando el orden (el primero de la lista es el mas antigua)
-    	while (importe > 0 && !colaExcedentes.isEmpty()) {
-    		//Cogemos directamente el primer bloque de la lista (el mas antiguo)
-    		BloqueExcedente actual = colaExcedentes.get(0);
-    		
-    		if (actual.saldoEuros <= importe) {
-    			//Si el bloque no cubre todo, nos lo gastamos entero y lo borramos 
-    			importe -= actual.saldoEuros;
-                ahorroTotal += actual.saldoEuros;
-                colaExcedentes.remove(0); //Borra el primer elemento de la lista
-                
-                
-    		}else {
-    			//Si el bloque cubre la factura, restamos lo gastado y dejamos el restante
-    			actual.saldoEuros -= importe;
-                actual.kwh = actual.saldoEuros / actual.precioKwh;
+
+    /**
+     * Consume energía de la batería liquidando primero los bloques más antiguos (FIFO).
+     * El importe consumido es kWh * precio.
+     * @param kwh energía a consumir (kWh), mayor que 0
+     * @param precio precio actual por kWh (€), mayor que 0
+     * @return importe total consumido en euros
+     * @throws BateriaExcepcion si algún valor no es positivo
+     * @throws SaldoExcepcion si no hay saldo suficiente
+     */
+    public double consumir(double kwh, double precio) throws BateriaExcepcion {
+        if (kwh <= 0 || precio <= 0) {
+            throw new BateriaExcepcion("Los kWh y el precio deben ser mayores que 0.");
+        }
+        double importe = kwh * precio;
+        double total = importe;
+        double saldoTotal = getSaldoTotal();
+
+        if (importe > saldoTotal + EPSILON) {
+            throw new SaldoExcepcion(String.format(
+                "Saldo insuficiente: necesitas %.2f € y solo hay %.2f €.", importe, saldoTotal));
+        }
+
+        while (importe > EPSILON && !colaExcedentes.isEmpty()) {
+            BloqueExcedente actual = colaExcedentes.peek();
+            if (actual.getSaldoEuros() <= importe + EPSILON) {
+                importe -= actual.getSaldoEuros();
+                ahorroTotal += actual.getSaldoEuros();
+                colaExcedentes.poll();
+            } else {
+                actual.descontar(importe);
                 ahorroTotal += importe;
                 importe = 0;
-    		}
-    		
-    		
-    	}
-    	
-    	
-    	
+            }
+        }
+        return total;
     }
-    
-    
-    
-    
 
+    /** @return saldo total en euros */
+    public double getSaldoTotal() {
+        double total = 0;
+        for (BloqueExcedente b : colaExcedentes) total += b.getSaldoEuros();
+        return total;
+    }
+
+    /** @return kWh totales almacenados */
+    public double getKwhTotal() {
+        double total = 0;
+        for (BloqueExcedente b : colaExcedentes) total += b.getKwh();
+        return total;
+    }
+
+    /** @return ahorro total acumulado en euros */
+    public double getAhorroTotal() { return ahorroTotal; }
+
+    /** @return vista de solo lectura de los bloques, del más antiguo al más reciente */
+    public Collection<BloqueExcedente> getBloques() {
+        return Collections.unmodifiableCollection(colaExcedentes);
+    }
 }
