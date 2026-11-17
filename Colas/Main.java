@@ -1,19 +1,18 @@
 package Colas;
 
 import java.util.InputMismatchException;
-import java.util.Locale;
 import java.util.Scanner;
 
 /**
- * Programa principal: menú de la batería virtual fotovoltaica.
+ * Programa principal que muestra el menu por consola para interacturar con la bateria virtual
  */
-public class Main {
 
-    /**
+public class Main {
+	/**
      * Punto de entrada del programa.
      */
     public static void main(String[] args) {
-        Locale.setDefault(Locale.US); // decimales con punto, tanto al leer como al mostrar
+     
         Scanner sc = new Scanner(System.in);
         BateriaVirtual bateria = new BateriaVirtual();
         int opcion = 0;
@@ -31,49 +30,60 @@ public class Main {
 
                 switch (opcion) {
                     case 1:
-                        System.out.print("Introduce la energia (kWh): ");
+                        System.out.print("Introduce la energia (kwh): ");
                         double kwhIn = sc.nextDouble();
-                        System.out.print("Introduce el precio actual por kWh (€): ");
+                        System.out.print("Introduce el precio actual por kwh (€): ");
                         double precioIn = sc.nextDouble();
+                        
                         bateria.inyectar(kwhIn, precioIn);
-                        System.out.printf("Inyectados %.2f kWh a %.4f €/kWh (%.2f €).%n",
-                                kwhIn, precioIn, kwhIn * precioIn);
+                        
+                        System.out.println ("Excendente inyectado correctamente");
                         break;
+                        
                     case 2:
-                        System.out.print("Introduce la energia a consumir (kWh): ");
+                        System.out.print("Introduce la energia a consumir (kwh): ");
                         double kwhOut = sc.nextDouble();
-                        System.out.print("Introduce el precio actual por kWh (€): ");
+                        System.out.print("Introduce el precio actual por kwh (€): ");
                         double precioOut = sc.nextDouble();
+                        
                         double importe = bateria.consumir(kwhOut, precioOut);
-                        System.out.printf("Consumidos %.2f € de la bateria.%n", importe);
+                        
+                        System.out.printf("Se han consumido %.2f euros de la bateria.%n", importe);
+                        
                         break;
+                        
                     case 3:
                         System.out.println("Estado de la bateria");
-                        int i = 1;
+                        int contador = 1;
                         for (BloqueExcedente b : bateria.getBloques()) {
-                            System.out.printf("  Bloque %d: %.2f kWh | %.4f €/kWh | %.2f €%n",
-                                    i++, b.getKwh(), b.getPrecioKwh(), b.getSaldoEuros());
+                        	System.out.println("Bloque " + contador + ": " + b.getKwh() + " kWh | " + b.getPrecioKwh() + " €/kWh | " + b.getSaldoEuros() + " €");
+                        	contador++;
                         }
-                        if (i == 1) System.out.println("  (sin bloques)");
-                        System.out.printf("kWh total: %.2f kWh%n", bateria.getKwhTotal());
-                        System.out.printf("Saldo disponible: %.2f €%n", bateria.getSaldoTotal());
-                        System.out.printf("Ahorro total acumulado: %.2f €%n", bateria.getAhorroTotal());
+                        
+                        System.out.println("kWh totales: " + bateria.getKwhTotal());
+                        System.out.println("Saldo total disponible: " + bateria.getSaldoTotal() + " €");
+                        System.out.println("Ahorro total acumulado: " + bateria.getAhorroTotal() + " €");
+                        
                         break;
+                        
                     case 4:
                         System.out.println("Saliendo...");
+                        
                         break;
+                        
                     default:
                         System.out.println("Opcion no valida, elige un numero del 1 al 4.");
                 }
             } catch (InputMismatchException e) {
-                System.out.println("Entrada no valida: introduce un numero.");
+                System.out.println("Entrada no valida, introduce un numero.");
                 sc.nextLine(); // limpia el buffer
                 opcion = 0;
-            } catch (BateriaExcepcion e) { // incluye SaldoExcepcion
+            } catch (BateriaExcepcion e) { 
                 System.out.println("Error: " + e.getMessage());
             }
         } while (opcion != 4);
 
         sc.close();
     }
+
 }
